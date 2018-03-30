@@ -1,27 +1,60 @@
 const assert = require('assert');
 const request = require('./request');
+const Server = require('./server');
 
-const httpGetBaidu = request.get('http://www.baidu.com');
-const httpsGetBaidu = request.get('https://www.baidu.com');
-const httpPostBaidu = request.post('http://www.baidu.com');
-const httpsPostBaidu = request.post('https://www.baidu.com');
+const server = new Server();
 
-httpGetBaidu.then(res => {
-    assert.equal(res.status, 200);
-    assert.equal(!!res.data.match(/百度一下/), true);
+server.get(/^\/get/, req => req.url);
+server.post(/^\/post/, req => JSON.stringify(req.body));
+
+server.listen(5261);
+
+const httpGet404 = request.get('http://localhost:5261/404');
+const httpGetLocal = request.get('http://localhost:5261/get?name=netcon');
+const httpPostLocal = request.post('http://localhost:5261/post', {name: 'netcon'});
+const httpJsonLocal = request.json('http://localhost:5261/post', {name: 'netcon'});
+
+httpGet404.then(res => {
+    assert.equal(res.status, 404);
 });
+
+httpGetLocal.then(res => {
+    assert.equal(res.status, 200);
+    assert.equal(res.data, '/get?name=netcon');
+});
+
+httpPostLocal.then(res => {
+    assert.equal(res.status, 200);
+    assert.equal(res.data, '{"name":"netcon"}');
+});
+
+httpJsonLocal.then(res => {
+    assert.equal(res.status, 200);
+    assert.equal(res.data, '{"name":"netcon"}');
+});
+
+httpJsonLocal.then(res => {
+    assert.equal(res.status, 200);
+    assert.equal(res.data, '{"name":"netcon"}');
+});
+
+const httpsGetBaidu = request.get('https://www.baidu.com');
+const httpsPostBaidu = request.post('https://www.baidu.com');
+const httpsJsonBaidu = request.json('https://www.baidu.com');
 
 httpsGetBaidu.then(res => {
     assert.equal(res.status, 200);
     assert.equal(!!res.data.match(/百度一下/), true);
 });
 
-httpPostBaidu.then(res => {
-    assert.equal(res.status, 302);
-    assert.equal(!!res.data.match(/302 Found/), true);
-});
-
 httpsPostBaidu.then(res => {
     assert.equal(res.status, 302);
     assert.equal(!!res.data.match(/302 Found/), true);
 });
+
+httpsJsonBaidu.then(res => {
+    assert.equal(res.status, 302);
+    assert.equal(!!res.data.match(/302 Found/), true);
+});
+
+console.log('Test Accetped');
