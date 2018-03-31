@@ -8,7 +8,7 @@ const PROTOCOL_TO_REQUEST = {
     'https:': _https
 };
 
-const ajax = ({url, method = 'GET', data, encoding = 'utf8', ...restOptions}) => new Promise((resolve, reject) => {
+const ajax = ({url, method = 'GET', data = '', encoding = 'utf8', ...restOptions}) => new Promise((resolve, reject) => {
     const {protocol, hostname, path, port} = _url.parse(url);
     const options = Object.assign({}, restOptions, {hostname, path, port, method});
     const request = PROTOCOL_TO_REQUEST[protocol].request(options, result => {
@@ -17,6 +17,7 @@ const ajax = ({url, method = 'GET', data, encoding = 'utf8', ...restOptions}) =>
         result.setEncoding(encoding);
         result.on('data', data => {
             const response = {status, headers, data};
+            console.log(data);
 
             (status < 400 ? resolve : reject)(response);
         })

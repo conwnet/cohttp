@@ -8,8 +8,12 @@ const CONTENT_TYPE_TO_DECODE = {
 
 class Server extends _http.Server {
 
-    constructor(...options) {
-        super(...options);
+    constructor(options) {
+        super();
+
+        this._response = Object.assign({
+            body: '', status: 404, reason: 'Not Found', headers: {}
+        }, options);
     
         this.routes = {
             GET: [],
@@ -33,19 +37,24 @@ class Server extends _http.Server {
 
             request.on('end', () => {
                 const routes = this.routes[method];
+                const ctx = {
+                    request: {url, method, headers, query, body},
+                    response: Object.assign({}, this._response)
+                };
 
                 if (routes) for (let i = 0, l = routes.length; i < l; i++) {
                     const {route, handle} = routes[i];
 
                     if (params = url.match(route)) {
-                        return response.end(handle({
-                            url, method, headers, params, query, body
-                        }, response).toString());
+                        ctx.request.params = params;
+                        ctx.response.status = 200;
+                        ctx.response.reason = 'OK';
+                        handle(ctx); break;
                     }
                 }
 
-                response.writeHead(404, 'Not Found');
-                response.end();
+                response.writeHead(ctx.response.status, ctx.response.reason, ctx.response.headers);
+                response.end(ctx.response.body.toString());
             });
         });
     }
