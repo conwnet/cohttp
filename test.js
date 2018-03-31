@@ -4,11 +4,11 @@ const Server = require('./server');
 
 const server = new Server();
 
-server.get(/^\/get/, ({request, response}) => response.body = 1);
-server.post(/^\/post/, ({request, response}) => response.body = JSON.stringify(request.body) + 1);
+server.get(/^\/get/, ({request, response}) => response.body = request.url);
+server.post(/^\/post/, ({request, response}) => response.body = JSON.stringify(request.body));
 
 server.listen(5261);
-/*
+
 const httpGet404 = request.get('http://localhost:5261/404');
 const httpGetLocal = request.get('http://localhost:5261/get?name=netcon');
 const httpPostLocal = request.post('http://localhost:5261/post', {name: 'netcon'});
@@ -58,4 +58,3 @@ httpsJsonBaidu.then(res => {
 });
 
 console.log('Test Accetped');
-*/

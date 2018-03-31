@@ -32,6 +32,7 @@ class Server extends _http.Server {
 
             request.on('data', data => {
                 const parse = CONTENT_TYPE_TO_DECODE[headers['content-type']];
+
                 try { body = parse ? parse(data.toString()) : data.toString(); } catch (e) {}
             });
 

@@ -17,7 +17,6 @@ const ajax = ({url, method = 'GET', data = '', encoding = 'utf8', ...restOptions
         result.setEncoding(encoding);
         result.on('data', data => {
             const response = {status, headers, data};
-            console.log(data);
 
             (status < 400 ? resolve : reject)(response);
         })
