@@ -35,7 +35,7 @@ const getFileListHtml = (url, dir) => (`
 `);
 
 const getEnv = () => {
-    let path = __dirname;
+    let path = '.';
     let port = 5261;
     const args = process.argv.slice(2);
 
