@@ -19,11 +19,10 @@ const getQuery = url => {
 // 设置 HTTP Response
 const setResponse = (response, {status, headers, body}) => {
     // 如果 body 是 object，则当做 json 处理
-    if (typeof body === 'object') {
+    if (!((body instanceof Buffer) || (typeof body === 'string'))) {
         if (!headers['content-type']) {
             headers['content-type'] = 'application/json';
         }
-
         body = JSON.stringify(body);
     }
 

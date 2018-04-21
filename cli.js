@@ -69,7 +69,8 @@ const SUFFIX_TO_TYPE = {
     'html': 'text/html', 'html': 'text/html', 'xml': 'text/xml',
     'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
     'gif': 'image/gif', 'ico': 'image/x-icon',
-    'mp3': 'image/mp3', 'mp4': 'image/mp4'
+    'mp3': 'audio/mp3', 'mp4': 'video/mpeg4',
+    'js': 'application/x-javascript'
 };
 
 const main = () => {
@@ -93,7 +94,7 @@ const main = () => {
             const suffix = matches ? matches[0].toLowerCase() : '';
     
             res.headers['content-type'] = SUFFIX_TO_TYPE[suffix] || 'text/plain';
-            res.body = $readFileSync(target).toString();
+            res.body = $readFileSync(target);
         } else {
             res.headers['content-type'] = 'text/html';
             res.body = getFileListHtml(req.url, target);
