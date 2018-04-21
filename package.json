@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "node request & server module",
   "main": "index.js",
+  "bin": "cli.js",
   "scripts": {
     "test": "node test.js",
     "start": "node test.js"

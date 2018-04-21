@@ -4,8 +4,9 @@ const Server = require('./server');
 
 const server = new Server();
 
-server.get(/^\/get/, ({request, response}) => response.body = request.url);
-server.post(/^\/post/, ({request, response}) => response.body = JSON.stringify(request.body));
+server.get(/^\/get/, ({req, res}) => res.body = req.url);
+server.post(/^\/post/, ({req, res}) => res.body = JSON.stringify(req.body));
+server.get(/^\/test/, ({req, res}) => res.body = {good: 'boy'});
 
 server.listen(5261);
 
