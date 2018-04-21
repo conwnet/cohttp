@@ -66,11 +66,11 @@ const getEnv = () => {
 };
 
 const SUFFIX_TO_TYPE = {
-    'html': 'text/html', 'html': 'text/html', 'xml': 'text/xml',
+    'html': 'text/html', 'htm': 'text/html', 'xml': 'text/xml',
+    'js': 'application/x-javascript', 'css': 'text/css',
     'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
     'gif': 'image/gif', 'ico': 'image/x-icon',
-    'mp3': 'audio/mp3', 'mp4': 'video/mpeg4',
-    'js': 'application/x-javascript'
+    'mp3': 'audio/mp3', 'mp4': 'video/mpeg4'
 };
 
 const main = () => {
