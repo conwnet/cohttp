@@ -1,6 +1,6 @@
 {
   "name": "cohttp",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "node request & server module",
   "main": "index.js",
   "bin": "cli.js",
