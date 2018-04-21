@@ -3,9 +3,13 @@ const _fs = require('fs');
 const _path = require('path');
 const Server = require('./server');
 
-const isFile = path => {
-    return _fs.statSync(path).isFile();
-};
+const $isFile = path => _fs.statSync(path).isFile();
+const $isExists = path => _fs.existsSync(path);
+const $readdirSync = _fs.readdirSync;
+const $readFileSync = _fs.readFileSync;
+const $resolve = _path.resolve;
+const $join = _path.join;
+const $dirname = _path.dirname;
 
 const getFileListHtml = (url, dir) => (`
     <!DOCTYPE html>
@@ -14,14 +18,14 @@ const getFileListHtml = (url, dir) => (`
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>${_path.resolve(dir)}</title>
+        <title>${$resolve(dir)}</title>
     </head>
     <body>
         <ul>
-        ${_fs.readdirSync(dir).map(item => {
-            const file = _path.join(dir, item);
-            const name = isFile(file) ? item : `${item}/`;
-            const href = _path.join(url, name);
+        ${$readdirSync(dir).map(item => {
+            const file = $join(dir, item);
+            const name = $isFile(file) ? item : `${item}/`;
+            const href = $join(url, name);
 
             return `<li><a href="${href}">${name}</a></li>`;
         }).join('')}
@@ -31,7 +35,7 @@ const getFileListHtml = (url, dir) => (`
 `);
 
 const getEnv = () => {
-    let path = '.';
+    let path = __dirname;
     let port = 5261;
     const args = process.argv.slice(2);
 
@@ -43,19 +47,24 @@ const getEnv = () => {
                 port = +args[++i] || 5261;
             } else {
                 console.log('Usage: cohttp [-p port] [path]');
+                return null;
             }
         } else if (arg.startsWith('-')) {
             console.log(`Unknow option: ${arg}`);
+            return null;
         } else {
             path = arg;
         }
     }
 
-    return {port, path: _path.resolve(path)};
+    if (!$isExists(path)) {
+        console.log(`cohttp: ${path}: No such file or directory`);
+        return null;
+    }
+
+    return {port, path: $resolve(path)};
 };
 
-const env = getEnv();
-const server = new Server();
 const SUFFIX_TO_TYPE = {
     'html': 'text/html', 'html': 'text/html', 'xml': 'text/xml',
     'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
@@ -63,26 +72,38 @@ const SUFFIX_TO_TYPE = {
     'mp3': 'image/mp3', 'mp4': 'image/mp4'
 };
 
-server.get(/^\/.*/, ({req, res}) => {
-    const dir = isFile(env.path) ? _path.dirname(env.path) : env.path;
-    const target = (req.url === '/' && isFile(env.path)) ? env.path : _path.join(dir, req.url);
+const main = () => {
+    const env = getEnv();
 
-    if (!_fs.existsSync(target)) {
-        res.status = 404;
-        res.body = "File Not Exists";
-    } else if (isFile(target)) {
-        const matches = target.match(/[^\.]*$/i);
-        const suffix = matches ? matches[0].toLowerCase() : '';
+    if (!env) {
+        return;
+    };
 
-        res.headers['content-type'] = SUFFIX_TO_TYPE[suffix] || 'text/plain';
-        res.body = _fs.readFileSync(target).toString();
-    } else {
-        res.headers['content-type'] = 'text/html';
-        res.body = getFileListHtml(req.url, target);
-    }
-});
+    const server = new Server();
+    
+    server.get(/^\/.*/, ({req, res}) => {
+        const dir = $isFile(env.path) ? $dirname(env.path) : env.path;
+        const target = (req.url === '/' && $isFile(env.path)) ? env.path : $join(dir, req.url);
+    
+        if (!$isExists(target)) {
+            res.status = 404;
+            res.body = "File Not Exists";
+        } else if ($isFile(target)) {
+            const matches = target.match(/[^\.]*$/i);
+            const suffix = matches ? matches[0].toLowerCase() : '';
+    
+            res.headers['content-type'] = SUFFIX_TO_TYPE[suffix] || 'text/plain';
+            res.body = $readFileSync(target).toString();
+        } else {
+            res.headers['content-type'] = 'text/html';
+            res.body = getFileListHtml(req.url, target);
+        }
+    });
+    
+    server.listen(env.port);
+    
+    console.log(`Server worked at ${env.path}`)
+    console.log(`Server started at http://0.0.0.0:${env.port}/`);    
+}
 
-server.listen(env.port);
-
-console.log(`Server worked at ${env.path}`)
-console.log(`Server started at http://0.0.0.0:${env.port}/`);
+main();
