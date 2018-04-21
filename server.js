@@ -17,7 +17,7 @@ const getQuery = url => {
 }
 
 // 设置 HTTP Response
-const setResponse = (response, {status, reason, headers, body}) => {
+const setResponse = (response, {status, headers, body}) => {
     // 如果 body 是 object，则当做 json 处理
     if (typeof body === 'object') {
         if (!headers['content-type']) {
@@ -27,7 +27,7 @@ const setResponse = (response, {status, reason, headers, body}) => {
         body = JSON.stringify(body);
     }
 
-    response.writeHead(status, reason, headers);
+    response.writeHead(status, headers);
     response.end(body);
 };
 
